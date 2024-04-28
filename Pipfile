@@ -1,0 +1,11 @@
+[build-system]
+requires = ["@vercel/python"]
+build-backend = "@vercel/python"
+
+[dev-packages]
+
+[packages]
+flask = "*"
+
+[requires]
+python_version = "3.12"
