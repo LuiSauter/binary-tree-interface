@@ -14,6 +14,8 @@ class Tree:
 
     def insert_recursive(self, element: int):
         """Método para insertar un elemento en el árbol de manera iterativa"""
+        if self.search(element):
+            return
         if self.empty():
             self.__raiz__ = Nodo(element)
         else:
@@ -34,6 +36,9 @@ class Tree:
 
     def insert_iterative(self, element: int):
         """Método para insertar un elemento en el árbol de manera iterativa"""
+        # si el nodo ya existe, se retorna
+        if self.search(element):
+            return
         if self.empty():
             self.__raiz__ = Nodo(element)
         else:
