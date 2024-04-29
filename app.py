@@ -29,6 +29,7 @@ def draw_tree(node: Nodo, html, x, y, dx, dy):
 
 @app.route("/", methods=["GET"])
 def index():
+    tree.__raiz__ = None
     return render_template(
         "index.html", tree=generate_html_tree(tree.__raiz__), order=""
     )
