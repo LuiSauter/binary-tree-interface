@@ -106,10 +106,8 @@
     <h1>Arbol binario</h1>
     <p>Estudiante: <strong>Luis Gabriel Janco Alvarez</strong></p>
     <p>Registro: <strong>220104875</strong></p>
-    <!-- crear un formulario que tenga un solo input, con botones como para insertar, eliminar, y buscar elementos del arbol -->
-    <form id="form" action="/" method="post">
+    <form id="form-action" action="/action" method="post">
       <input class="input" type="number" name="value" id="value" placeholder="Valor" required>
-      <!-- genera un input radio para establecer en iterativo o recursivo -->
       <div class="enfoque">
         <input type="radio" name="method" id="iterative" value="iterative" checked>
         <label for="iterative">Iterativo</label>
@@ -119,20 +117,20 @@
 
       <div class="buttons">
         <div>
-          <button class="buttons__btn" type="submit" name="action" value="insert">Insertar</button>
-          <button class="delete" type="submit" name="action" value="delete">Eliminar</button>
-          <button class="buttons__btn" type="submit" name="action" value="search">Buscar</button>
+          <button id="insert" class="buttons__btn" type="submit" name="action" value="insert">Insertar</button>
+          <button id="delete" class="delete" type="submit" name="action" value="delete">Eliminar</button>
+          <button id="search" class="buttons__btn" type="submit" name="action" value="search">Buscar</button>
         </div>
       </div>
 
     </form>
-    <form action="/balance" method="post">
+    <form id="form-balance" action="/balance" method="post">
       <div class="buttons">
         <button class="buttons__btn" type="submit" name="action" value="balance">Balancear AVL</button>
       </div>
     </form>
 
-    <form action="/reset" method="post">
+    <form id="form-reset" action="/reset" method="post">
       <div class="buttons">
         <button class="delete" type="submit" name="action" value="reset">Reset arbol</button>
       </div>
@@ -140,14 +138,14 @@
 
     <section>
       <h2>Otros métodos</h2>
-      <form action="/methods" method="post">
+      <form id="form-methods" action="/methods" method="post">
         <div class="buttons">
-          <button class="buttons__btn" type="submit" name="action" value="preorder">Preorden</button>
-          <button class="buttons__btn" type="submit" name="action" value="inorder">Inorden</button>
-          <button class="buttons__btn" type="submit" name="action" value="postorder">Postorden</button>
+          <button id="preorder" class=" buttons__btn" type="submit" name="action" value="preorder">Preorden</button>
+          <button id="inorder" class=" buttons__btn" type="submit" name="action" value="inorder">Inorden</button>
+          <button id="postorder" class=" buttons__btn" type="submit" name="action" value="postorder">Postorden</button>
         </div>
     </section>
-    <section>
+    <section id="order">
       {{order}}
     </section>
   </aside>
@@ -165,6 +163,96 @@
     if (searchValue) {
       alert(`El valor ${searchValue} ${searchValue !== '' ? 'si' : 'no'} se encuentra en el arbol`);
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const formAction = document.getElementById('form-action');
+      const formBalance = document.getElementById('form-balance');
+      const formReset = document.getElementById('form-reset');
+      const formMethods = document.getElementById('form-methods');
+
+      const svg = document.querySelector('svg');
+      const treeEle = document.getElementById('tree');
+      const orderEle = document.getElementById('order');
+      const btnInsert = document.getElementById('insert');
+      const btnDelete = document.getElementById('delete');
+      const btnSearch = document.getElementById('search');
+
+      const btnPreorder = document.getElementById('preorder');
+      const btnInorder = document.getElementById('inorder');
+      const btnPostorder = document.getElementById('postorder');
+      let selectOrder
+      let selectMethod
+
+      btnInsert.addEventListener('click', () => {
+        selectOrder = 'insert'
+      })
+      btnDelete.addEventListener('click', () => {
+        selectOrder = 'delete'
+      })
+      btnSearch.addEventListener('click', () => {
+        selectOrder = 'search'
+      })
+      btnPreorder.addEventListener('click', () => {
+        selectMethod = 'preorder'
+      })
+      btnInorder.addEventListener('click', () => {
+        selectMethod = 'inorder'
+      })
+      btnPostorder.addEventListener('click', () => {
+        selectMethod = 'postorder'
+      })
+
+      formAction.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(formAction);
+        formData.append('action', selectOrder)
+        fetch('/action', { method: 'POST', body: formData })
+          .then(response => response.json())
+          .then(data => {
+            treeEle.innerHTML = data.tree;
+            if (data.searchValue !== '') {
+              alert(`El elemento ${data.searchValue} ${data.searchValue !== '' ? 'si' : 'no'} se encuentra en el arbol`);
+            }
+          })
+      });
+
+      formBalance.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(formBalance);
+        fetch('/balance', {
+          method: 'POST',
+          body: formData
+        })
+          .then(response => response.json())
+          .then(data => {
+            treeEle.innerHTML = "";
+            treeEle.innerHTML = data.tree;
+          })
+      });
+
+      formMethods.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const formData = new FormData(formMethods);
+        formData.append('action', selectMethod)
+        fetch('/methods', { method: 'POST', body: formData })
+          .then(response => response.json())
+          .then(data => {
+            console.log(data.order)
+            orderEle.textContent =
+              selectMethod + ": " + data.order.join(', ');
+          })
+      });
+
+      formReset.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        fetch('/reset', { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+            treeEle.innerHTML = "";
+          })
+      });
+    })
   </script>
   <script src="/static/js/main.js"></script>
 </body>

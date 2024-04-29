@@ -27,63 +27,68 @@ def draw_tree(node: Nodo, html, x, y, dx, dy):
         html += f"<text x=\"{x}\" y=\"{y}\" text-anchor=\"middle\" dominant-baseline=\"middle\" fill=\"black\">{node.element}</text>\n"
     return html
 
-@app.route("/", methods=["GET", "POST"])
+@app.route("/", methods=["GET"])
 def index():
-    searchValue = ""
-    if request.method == "POST":
-        element = request.form["value"]
-        if request.form["method"] == "interative":
-            if request.form["action"] == "delete":
-                tree.delete_iterative(int(element))
-            if request.form["action"] == "insert":
-              tree.insert_iterative(int(element))
-            if request.form["action"] == "search":
-                findNodo = tree.search_iterative(int(element))
-                searchValue = findNodo.element if findNodo else ""
-        else:
-            if request.form["action"] == "delete":
-                tree.delete_recursive(int(element))
-            if request.form["action"] == "insert":
-                tree.insert_recursive(int(element))
-            if request.form["action"] == "search":
-                findNodo = tree.search_recursive(int(element))
-                searchValue = findNodo.element if findNodo else ""
     return render_template(
-        "index.html", tree=generate_html_tree(tree.__raiz__), searchValue=searchValue, order=""
+        "index.html", tree=generate_html_tree(tree.__raiz__), order=""
     )
+
+@app.post("/action")
+def action():
+    searchValue = ""
+    print(request.form)
+    element = request.form["value"]
+    if request.form["method"] == "interative":
+        if request.form["action"] == "delete":
+            tree.delete_iterative(int(element))
+        if request.form["action"] == "insert":
+          tree.insert_iterative(int(element))
+        if request.form["action"] == "search":
+            findNodo = tree.search_iterative(int(element))
+            searchValue = findNodo.element if findNodo else ""
+    else:
+        if request.form["action"] == "delete":
+            tree.delete_recursive(int(element))
+        if request.form["action"] == "insert":
+            tree.insert_recursive(int(element))
+        if request.form["action"] == "search":
+            findNodo = tree.search_recursive(int(element))
+            searchValue = findNodo.element if findNodo else ""
+    html = ""
+    html = generate_html_tree(tree.__raiz__)
+    return {"tree": html, "searchValue": searchValue}
 
 @app.post("/balance")
 def balance():
-    # if request.method == "POST":
+    html = ""
     if tree.empty():
-        return render_template(
-            "index.html", tree=generate_html_tree(tree.__raiz__), searchValue="", order=""
-        )
+        return {"tree": html}
     tree.balance_recursive()
-    return render_template(
-        "index.html", tree=generate_html_tree(tree.__raiz__), searchValue="", order=""
-    )
+    html = generate_html_tree(tree.__raiz__)
+    return {"tree": html}
 
 @app.post("/methods")
 def methods():
     order_result = ""
     if tree.empty():
-        return render_template(
-            "index.html", tree=generate_html_tree(tree.__raiz__), searchValue="", order=""
-        )
+        return {"order": ""}
     if request.form["action"] == "preorder":
         order_result = tree.pre_order_iterative()
     if request.form["action"] == "inorder":
         order_result = tree.in_order_iterative()
     if request.form["action"] == "postorder":
         order_result = tree.post_order_iterative()
-    return render_template(
-        "index.html", tree=generate_html_tree(tree.__raiz__), searchValue="", order=order_result
-    )
+    return {"order": order_result}
 
 @app.post("/reset")
 def reset():
     tree.__raiz__ = None
-    return render_template(
-        "index.html", tree=generate_html_tree(tree.__raiz__), searchValue="", order=""
-    )
+    html = generate_html_tree(tree.__raiz__)
+    return {"tree": html}
+
+@app.post("/test")
+def test():
+    # return a json
+    html = ""
+    html = draw_tree(tree.__raiz__, html, 500, 50, 200, 50)
+    return {"nodo": html}
