@@ -87,6 +87,3 @@ def reset():
     return render_template(
         "index.html", tree=generate_html_tree(tree.__raiz__), searchValue="", order=""
     )
-
-if __name__ == "__main__":
-    app.run(debug=True)
